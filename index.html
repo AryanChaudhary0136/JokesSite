@@ -13,6 +13,7 @@
   --card-bg: #fff;
   --text: #333;
   --accent: #ff6a88;
+  --accent-light: #f857a6;
 }
 
 body {
@@ -32,11 +33,12 @@ header {
   position: fixed;
   top: 10px;
   width: 90%;
-  max-width: 600px;
+  max-width: 500px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: var(--text);
+  z-index: 10;
 }
 
 header h2 {
@@ -45,19 +47,20 @@ header h2 {
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-#modeToggle {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  color: #fff;
+.header-buttons button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #fff;
+    margin-left: 10px;
 }
 
 #card {
   perspective: 1000px;
   width: 90%;
   max-width: 500px;
-  height: 280px;
+  height: 320px;
   margin-top: 90px;
 }
 
@@ -69,7 +72,6 @@ header h2 {
   transform-style: preserve-3d;
 }
 
-/* Corrected CSS for rotation */
 #card.flip .inner {
   transform: rotateY(180deg);
 }
@@ -94,14 +96,25 @@ header h2 {
 
 .back {
   transform: rotateY(180deg);
+  justify-content: space-between;
 }
+
+#frontImage {
+    max-width: 80%;
+    height: 120px; 
+    border-radius: 15px;
+    object-fit: cover;
+    margin: 5px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
 
 button {
   margin: 8px;
   padding: 10px 18px;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(45deg,#f857a6,#ff5858);
+  background: linear-gradient(45deg, var(--accent-light), #ff5858);
   color: #fff;
   font-size: 1em;
   cursor: pointer;
@@ -114,28 +127,69 @@ button:hover {
 
 #joke {
   font-size: 1.2em;
-  line-height: 1.6;
-  max-height: 180px;
+  line-height: 1.5;
+  height: 190px;
   overflow-y: auto;
-  margin-bottom: 10px;
   padding: 0 15px;
   white-space: pre-wrap;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
   scrollbar-width: thin;
   scrollbar-color: var(--accent) rgba(0,0,0,0.1);
+  width:100%;
+}
+#joke.fade-in {
+    opacity: 1;
 }
 
-#joke::-webkit-scrollbar {
-  width: 8px;
+#joke::-webkit-scrollbar { width: 8px; }
+#joke::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+#joke::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
+
+.actions-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
-#joke::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.1);
-  border-radius: 10px;
+
+.action-buttons button {
+    background: none;
+    font-size: 1.5em;
+    padding: 5px;
+    margin: 0 15px;
+    color: var(--text);
+    opacity: 0.7;
 }
-#joke::-webkit-scrollbar-thumb {
-  background-color: var(--accent);
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+
+.action-buttons button:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: none;
+}
+
+#favoriteBtn.favorited {
+    color: var(--accent);
+}
+
+#toast {
+    position: fixed;
+    bottom: 20px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 100;
+}
+#toast.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 footer {
@@ -158,76 +212,185 @@ footer {
 <body>
 <header>
   <h2>Babita Ji 😜</h2>
-  <button id="modeToggle">🌙</button>
+  <div class="header-buttons">
+    <button id="showFavoritesBtn">❤️</button>
+    <button id="modeToggle">🌙</button>
+  </div>
 </header>
 
 <div id="card">
   <div class="inner">
     <div class="face front">
-      <!-- Simplified the front face -->
       <h3>Ready for a laugh?</h3>
-      <button onclick="randomJoke()">🎲 Get a Random Joke</button>
+      <!-- IMAGE LINK UPDATED TO YOUR LOCAL FILE -->
+      <img id="frontImage" src="image.png" alt="Jethalal and Babita Ji">
+      <button onclick="fetchNewJoke()">🎲 Get a Random Joke</button>
     </div>
     <div class="face back">
       <div id="joke">Your joke will appear here 😄</div>
-      <button onclick="flipBack()">🔁 One More</button>
+      
+      <div class="actions-container">
+        <div class="action-buttons">
+          <button id="favoriteBtn" onclick="toggleFavorite()">❤️</button>
+          <button onclick="copyJoke()">📋</button>
+        </div>
+        <button onclick="flipBack()">🔁 Go Back</button>
+      </div>
     </div>
   </div>
 </div>
 
+<div id="toast">Copied!</div>
 <footer>with ❤️ by Aryan Chaudhary</footer>
 
 <audio id="flipSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_68b6c7bfa2.mp3?filename=card-flip-1-108466.mp3"></audio>
 
 <script>
-// --- JAVASCRIPT IS NOW CLEAN AND FULLY FUNCTIONAL ---
-
-// Get references to HTML elements
 const card = document.getElementById("card");
 const jokeDiv = document.getElementById("joke");
 const flipSound = document.getElementById("flipSound");
 const toggleBtn = document.getElementById("modeToggle");
+const favoriteBtn = document.getElementById("favoriteBtn");
+const showFavoritesBtn = document.getElementById("showFavoritesBtn");
+const toast = document.getElementById("toast");
 
-// Function to fetch and display a random joke
-async function randomJoke() {
-  flipSound.play();
-  card.classList.add("flip"); // Correctly adds 'flip' class to the main card
-  jokeDiv.textContent = "Fetching a random joke...";
-  
-  const joke = await getEnglishJoke();
-  jokeDiv.textContent = joke;
+let currentJoke = "";
+let favoritesView = false;
+
+const apis = [
+    { url: 'https://v2.jokeapi.dev/joke/Any?type=single', format: 'jokeapi' },
+    { url: 'https://official-joke-api.appspot.com/jokes/random', format: 'official' },
+    { url: 'https://icanhazdadjoke.com/', format: 'dadjoke' },
+    { url: 'https://v2.jokeapi.dev/joke/Programming?type=single', format: 'jokeapi' }
+];
+
+async function fetchNewJoke() {
+    favoritesView = false;
+    flipSound.play();
+    card.classList.add("flip");
+    jokeDiv.classList.remove('fade-in');
+    jokeDiv.textContent = "Fetching a random joke...";
+
+    const joke = await getRandomJokeFromApis();
+    currentJoke = joke;
+
+    setTimeout(() => {
+        jokeDiv.textContent = currentJoke;
+        jokeDiv.classList.add('fade-in');
+        updateFavoriteStatus();
+    }, 300);
 }
 
-// Function to flip the card back to the front
 function flipBack() {
-  card.classList.remove("flip"); // Correctly removes 'flip' class from the main card
-}
-
-// Function to get a random English joke from the API
-async function getEnglishJoke() {
-  try {
-    const url = `https://v2.jokeapi.dev/joke/Any`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.error) {
-      return "Sorry, couldn't fetch a joke at the moment.";
-    }
-    if (data.type === "single") {
-      return data.joke;
+    if (favoritesView) {
+        fetchNewJoke(); 
     } else {
-      return `${data.setup}\n\n${data.delivery}`;
+        card.classList.remove("flip");
     }
-  } catch (e) {
-    return "Oops! Couldn't fetch the joke. Check your internet connection.";
-  }
 }
 
-// Dark / Light mode toggle functionality
+async function getRandomJokeFromApis() {
+    const api = apis[Math.floor(Math.random() * apis.length)];
+    try {
+        const headers = api.format === 'dadjoke' ? { "Accept": "application/json" } : {};
+        const res = await fetch(api.url, { headers });
+        const data = await res.json();
+
+        if (api.format === 'jokeapi') {
+            return data.joke;
+        } else if (api.format === 'official') {
+            return `${data.setup}\n\n${data.delivery}`;
+        } else if (api.format === 'dadjoke') {
+            return data.joke;
+        }
+    } catch (e) {
+        return "Oops! Couldn't fetch the joke. Check your internet connection.";
+    }
+}
+
+function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2000);
+}
+
+function copyJoke() {
+    if (currentJoke && !favoritesView) {
+        navigator.clipboard.writeText(currentJoke);
+        showToast("Copied to clipboard!");
+    } else if (favoritesView) {
+        showToast("Can't copy favorites list!");
+    }
+}
+
+function getFavorites() {
+    return JSON.parse(localStorage.getItem('favorite_jokes')) || [];
+}
+
+function toggleFavorite() {
+    if (favoritesView || !currentJoke) {
+        showToast("Can't favorite this view!");
+        return;
+    };
+
+    let favorites = getFavorites();
+    const isFavorited = favorites.includes(currentJoke);
+
+    if (isFavorited) {
+        favorites = favorites.filter(joke => joke !== currentJoke);
+        showToast("Removed from favorites!");
+    } else {
+        favorites.push(currentJoke);
+        showToast("Added to favorites! ❤️");
+    }
+    localStorage.setItem('favorite_jokes', JSON.stringify(favorites));
+    updateFavoriteStatus();
+}
+
+function updateFavoriteStatus() {
+    const favorites = getFavorites();
+    if (favorites.includes(currentJoke)) {
+        favoriteBtn.classList.add('favorited');
+    } else {
+        favoriteBtn.classList.remove('favorited');
+    }
+}
+
+function showFavorites() {
+    favoritesView = true;
+    const favorites = getFavorites();
+    jokeDiv.classList.remove('fade-in');
+
+    if (favorites.length === 0) {
+        currentJoke = "You have no favorite jokes yet. Click the ❤️ to save one!";
+    } else {
+        currentJoke = "Your Favorite Jokes:\n\n" + favorites.map((joke, index) => `${index + 1}. ${joke}`).join('\n\n---\n\n');
+    }
+    
+    if (!card.classList.contains("flip")) {
+        flipSound.play();
+        card.classList.add("flip");
+    }
+
+    setTimeout(() => {
+        jokeDiv.textContent = currentJoke;
+        jokeDiv.classList.add('fade-in');
+    }, 300);
+    favoriteBtn.classList.remove('favorited');
+}
+
+showFavoritesBtn.addEventListener("click", showFavorites);
+
 toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark");
   toggleBtn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
 });
-
 </script>
+
+<!-- AD SCRIPT ADDED HERE -->
+<script type='text/javascript' src='//pl27954922.effectivegatecpm.com/7f/ea/e2/7feae2c70f3e35488693fdcf3e69cb3f.js'></script>
+<script type='text/javascript' src='//pl27965630.effectivegatecpm.com/38/5a/12/385a12a4446f0e5303b4001b43bac2fc.js'></script>
 </body>
 </html>
