@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Babita Ji 😜</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Handlee&display=swap');
+
+:root {
+  --bg1: #ffecd2;
+  --bg2: #fcb69f;
+  --card-bg: #fff;
+  --text: #333;
+  --accent: #ff6a88;
+}
+
+body {
+  font-family: 'Baloo 2', cursive;
+  background: radial-gradient(circle at top, var(--bg1), var(--bg2));
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  transition: background 0.5s ease;
+}
+
+header {
+  position: fixed;
+  top: 10px;
+  width: 90%;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text);
+}
+
+header h2 {
+  font-size: 1.3em;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+#modeToggle {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #fff;
+}
+
+#card {
+  perspective: 1000px;
+  width: 90%;
+  max-width: 500px;
+  height: 280px;
+  margin-top: 90px;
+}
+
+.inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+/* Corrected CSS for rotation */
+#card.flip .inner {
+  transform: rotateY(180deg);
+}
+
+.face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: var(--card-bg);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  color: var(--text);
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+button {
+  margin: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(45deg,#f857a6,#ff5858);
+  color: #fff;
+  font-size: 1em;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+#joke {
+  font-size: 1.2em;
+  line-height: 1.6;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding: 0 15px;
+  white-space: pre-wrap;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) rgba(0,0,0,0.1);
+}
+
+#joke::-webkit-scrollbar {
+  width: 8px;
+}
+#joke::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+#joke::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+footer {
+  position: fixed;
+  bottom: 8px;
+  right: 10px;
+  font-family: 'Handlee', cursive;
+  font-size: 0.9em;
+  color: rgba(255,255,255,0.8);
+}
+
+.dark {
+  --bg1: #2b1055;
+  --bg2: #7597de;
+  --card-bg: #2e2e2e;
+  --text: #f5f5f5;
+}
+</style>
+</head>
+<body>
+<header>
+  <h2>Babita Ji 😜</h2>
+  <button id="modeToggle">🌙</button>
+</header>
+
+<div id="card">
+  <div class="inner">
+    <div class="face front">
+      <!-- Simplified the front face -->
+      <h3>Ready for a laugh?</h3>
+      <button onclick="randomJoke()">🎲 Get a Random Joke</button>
+    </div>
+    <div class="face back">
+      <div id="joke">Your joke will appear here 😄</div>
+      <button onclick="flipBack()">🔁 One More</button>
+    </div>
+  </div>
+</div>
+
+<footer>with ❤️ by Aryan Chaudhary</footer>
+
+<audio id="flipSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_68b6c7bfa2.mp3?filename=card-flip-1-108466.mp3"></audio>
+
+<script>
+// --- JAVASCRIPT IS NOW CLEAN AND FULLY FUNCTIONAL ---
+
+// Get references to HTML elements
+const card = document.getElementById("card");
+const jokeDiv = document.getElementById("joke");
+const flipSound = document.getElementById("flipSound");
+const toggleBtn = document.getElementById("modeToggle");
+
+// Function to fetch and display a random joke
+async function randomJoke() {
+  flipSound.play();
+  card.classList.add("flip"); // Correctly adds 'flip' class to the main card
+  jokeDiv.textContent = "Fetching a random joke...";
+  
+  const joke = await getEnglishJoke();
+  jokeDiv.textContent = joke;
+}
+
+// Function to flip the card back to the front
+function flipBack() {
+  card.classList.remove("flip"); // Correctly removes 'flip' class from the main card
+}
+
+// Function to get a random English joke from the API
+async function getEnglishJoke() {
+  try {
+    const url = `https://v2.jokeapi.dev/joke/Any`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) {
+      return "Sorry, couldn't fetch a joke at the moment.";
+    }
+    if (data.type === "single") {
+      return data.joke;
+    } else {
+      return `${data.setup}\n\n${data.delivery}`;
+    }
+  } catch (e) {
+    return "Oops! Couldn't fetch the joke. Check your internet connection.";
+  }
+}
+
+// Dark / Light mode toggle functionality
+toggleBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  toggleBtn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+});
+
+</script>
+</body>
+</html>
